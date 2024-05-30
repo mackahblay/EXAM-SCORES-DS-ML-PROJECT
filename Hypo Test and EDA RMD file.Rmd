@@ -1,0 +1,351 @@
+---
+title: "Exam Scores Project"
+author: "Melchizedek Ackah-Blay"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+### importing libraries and importing dataset
+```{r}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(questionr)
+
+# importing dataset
+exams <- read.csv("exams.csv")
+summary(exams)
+
+```
+
+
+#### Null Hypothesis (H0): There is no difference in mean math scores between students who prepped for the exam and those who did not
+```{r}
+# H0: gender has no effect on student math score
+# alpha = .05
+
+# column names
+colnames(exams)
+
+testing <- t.test(exams$math.score~exams$test.preparation.course, na.rm=TRUE)
+testing_results <- testing$estimate
+testing_pvalue <- testing$p.value
+```
+
+
+#### Results: Given p value of 0.000118, we reject the null hypothesis that there is no difference in the mean scores of students who prepped and those did not prep for the math exams.
+```{r}
+
+# show results 
+testing_results
+
+# pvalue
+testing_pvalue
+
+```
+
+##### Null Hypothesis: There is no difference in the mean reading scores between students who prepped and those who did not
+```{r}
+# performing t-test on reading exams
+reading_t <- t.test(exams$reading.score~exams$test.preparation.course, na.rm = TRUE)
+```
+
+
+#### Results: Given the p-value of 0.000003527 which is much less than our allpha of 0.05, we reject the null hypothesis that there are not any differences in the mean reading scores of students who prepped and those who did not
+```{r}
+# looking at the t.test results
+reading_estimates <- reading_t$estimate
+reading_pvalue <- reading_t$p.value
+
+reading_estimates
+cat('the p value is: ', reading_pvalue)
+```
+
+
+#### Boxplot to represent math scores per prepartion group
+```{r}
+colnames(exams)
+
+colors <- c("skyblue", "pink")
+boxplot(math.score ~ test.preparation.course, data = exams,
+        main = "Comparing Students who prepped vs those who did not",
+        names <- c("Prepped", "Did not prep"),
+        xlab = "Students and Preparation Levels",
+        ylab = "Math Score Distribution",
+        col = colors, 
+        col.main = 'darkblue', 
+        col.lab="darkblue"
+)
+
+
+
+```
+
+
+
+#### Do students who prep for WRITING and READING do better than their counterparts?
+
+In READING, the mean score of students who prepped was 74.73 (2 decimal places) which is about 6.62 points HIGHER than the mean score of students who did not prep. 
+
+In WRITING, students who prepped scored 10.1648 HIGHER on average compared to students who did not prep.
+
+
+```{r}
+
+# checking mean scores of students who prepped vs no-prep in reading
+mean_noprep <- mean(exams$reading.score[exams$test.preparation.course == "none"])
+mean_prep <- mean(exams$reading.score[exams$test.preparation.course == "completed"])
+mean_noprep
+mean_prep
+
+
+# checking the mean score of students who prepped vs no-prep in writing
+mean_wprep <- mean(exams$writing.score[exams$test.preparation.course == "completed"])
+mean_wnoprep <- mean(exams$writing.score[exams$test.preparation.course == "none"])
+mean_wprep
+mean_wnoprep
+```
+#### Among students who prepped, what percentage scored an A(90% or higher) in: Math, Reading, and Writing?
+
+9.59% of students who prepped had an A in Math
+14.53% of students who prepped had an A in Reading
+17.44% of students who prepped had an A in Writing
+
+```{r}
+# creating a dataframe to store all the data for students who prepped for writing
+prepped_students <- filter(exams, test.preparation.course=="completed")
+
+percent_math <- mean(prepped_students$math.score >= 90) * 100
+percent_reading <- mean(prepped_students$reading.score >= 90) * 100
+percent_writing <- mean(prepped_students$writing.score >= 90) * 100
+
+cat(percent_math, '% of students had an A in Math\n')
+cat(percent_reading, '% of students had an A in Reading\n')
+cat(percent_writing, '% of students had an A in Writing\n')
+
+
+
+```
+
+#### Does a student's lunch status affect their scores of the exams?
+
+Students with highly educated parents achieve notably higher grades across all subjects compared to those with less educated parents, underscoring the influential role of parental education in student academic success.
+```{r}
+cat('\nMath\n')
+
+m_some_college <- mean(exams$math.score[exams$parental.level.of.education ==  "some college"])
+m_associates <- mean(exams$math.score[exams$parental.level.of.education ==  "associate's degree"])
+m_some_high_school <- mean(exams$math.score[exams$parental.level.of.education == "some high school"])
+m_bach <- mean(exams$math.score[exams$parental.level.of.education == "bachelor's degree"])
+m_masters <- mean(exams$math.score[exams$parental.level.of.education == "master's degree"])
+m_high_school<- mean(exams$math.score[exams$parental.level.of.education == "high school"])
+
+m_some_college
+m_associates
+m_some_high_school
+m_bach
+m_masters
+m_high_school
+
+
+cat('\nReading\n')
+
+m_some_college <- mean(exams$reading.score[exams$parental.level.of.education ==  "some college"])
+m_associates <- mean(exams$reading.score[exams$parental.level.of.education ==  "associate's degree"])
+m_some_high_school <- mean(exams$reading.score[exams$parental.level.of.education == "some high school"])
+m_bach <- mean(exams$reading.score[exams$parental.level.of.education == "bachelor's degree"])
+m_masters <- mean(exams$reading.score[exams$parental.level.of.education == "master's degree"])
+m_high_school<- mean(exams$reading.score[exams$parental.level.of.education == "high school"])
+
+m_some_college
+m_associates
+m_some_high_school
+m_bach
+m_masters
+m_high_school
+
+
+
+cat('Writing\n')
+
+m_some_college <- mean(exams$writing.score[exams$parental.level.of.education ==  "some college"])
+m_associates <- mean(exams$writing.score[exams$parental.level.of.education ==  "associate's degree"])
+m_some_high_school <- mean(exams$writing.score[exams$parental.level.of.education == "some high school"])
+m_bach <- mean(exams$writing.score[exams$parental.level.of.education == "bachelor's degree"])
+m_masters <- mean(exams$writing.score[exams$parental.level.of.education == "master's degree"])
+m_high_school<- mean(exams$writing.score[exams$parental.level.of.education == "high school"])
+
+m_some_college
+m_associates
+m_some_high_school
+m_bach
+m_masters
+m_high_school
+
+```
+
+
+unique(exams$parental.level.of.education)
+
+#### Does a student's lunch status affect their scores of the exams?
+
+The are significant differences in scores when comparing students who receive free/reduced lunches to students who pay standard lunch fees.
+
+On average, students in the standard lunch fees categories score at least 5 points higher than their free/reduced lunch counterparts.
+
+The biggest disparity is in Math where students on free/reduced lunch plans on average score 12.98 points LESS than students on standard lunch plans.
+
+This signals that household income plays a major role in the scores of students.
+```{r}
+
+cat('\nMath\n')
+
+free_math_mean <- mean(exams$math.score[exams$lunch == 'free/reduced'])
+std_math_mean <- mean(exams$math.score[exams$lunch == 'standard'])
+
+free_math_mean
+std_math_mean
+
+cat('\nReading:\n')
+
+free_reading_mean <- mean(exams$reading.score[exams$lunch == 'free/reduced'])
+std_reading_mean <- mean(exams$reading.score[exams$lunch == 'standard'])
+
+free_reading_mean
+std_reading_mean
+
+cat('Writing\n')
+
+free_writing_mean <- mean(exams$writing.score[exams$lunch == 'free/reduced'])
+std_writing_mean <- mean(exams$writing.score[exams$lunch == 'standard'])
+
+free_writing_mean
+std_writing_mean
+
+```
+
+
+#### Plot the gender distribution of students who scored an A in math
+
+There are about two times the number of males with an A in math vs females with an A in math
+```{r}
+
+aplus_math <- filter(prepped_students, math.score >= 90)
+
+ggplot(data = aplus_math, aes(x = gender))+
+      geom_bar(fill = "skyblue", color = "darkblue") +
+      labs(title = "Gender Distribution of A+ Students in Math", x = "Gender", y = "Count")+
+      theme_minimal()
+      
+
+
+```
+
+
+
+#### What is the relationship between Writing & Reading scores?
+
+There is a positive linear relationship between reading and writing scores. As reading score goes up, writing score tends to go up as well.
+```{r}
+
+ggplot(data = exams, aes(x=reading.score, y = writing.score))+
+  geom_point(size = 2.2, shape = 'circle', color = 'lightgreen')+
+  labs(title = 'Comparing Reading & Writing Scores', x = 'Reading Scores', y = 'Writing Scores')+
+  theme_minimal()
+
+```
+### What is the largest group in the parent education level category?
+
+Based on the bar graph, majority of parents have some college education. The smallest subgroup represented here are parents with Master's degrees.
+```{r}
+
+ggplot(data = exams, aes(x = parental.level.of.education)) +
+  geom_bar(fill = "pink", color = "black")+
+  labs(title = "Parent Eduation Levels Distribution", x = "Education Levels", y = "Count")+
+  theme_minimal()
+
+```
+
+#### Perform correlation analysis on the variables
+
+Based on the corelation analysis, the variables with the most correlation are Reading scores and Reading scores at 94.89%. The variables with the least correation are Math scores and Writing scores at 79.01%
+```{r}
+
+corr = cor(exams[c('math.score','reading.score','writing.score')])
+corr
+
+```
+##  Conclusion 
+
+
+The analysis of the exam scores dataset provides valuable insights into the factors influencing students' academic performance and the effectiveness of test preparation strategies. Here are the key findings from the analysis:
+
+1. **Effect of Test Preparation on Exam Scores:**
+   - Students who completed the test preparation course outperformed their counterparts who did not prep across all subjects.
+   - Significant differences were observed in mean scores between students who prepped and those who did not, as evidenced by the results of t-tests.
+   - The mean math scores of students who prepped were approximately 3.85 points higher than those who did not prep, while the mean reading scores were approximately 6.62 points higher.
+
+2. **Performance Disparities Across Subjects:**
+   - Writing scores showed the largest difference between prepped and non-prepped students, with prepped students scoring approximately 10.16 points higher on average.
+   - Reading scores exhibited a strong positive correlation with writing scores, indicating a consistent relationship between these two subjects.
+
+3. **Parental Education and Student Achievement:**
+   - The majority of parents in the dataset have some college education, with the smallest subgroup being parents with Master's degrees. There was a positive association between parental education level and student achievement.
+   
+      - Math Scores:
+
+          - Students whose parents have an associate's degree or higher tend to have higher mean math scores compared to students whose parents have some college education, some high school education, or only a high school diploma.
+          - The highest mean math score is observed among students whose parents have a master's degree, followed by those with a bachelor's degree and an associate's degree.
+          - Students with parents having some high school education or only a high school diploma tend to have lower mean math scores compared to other groups.
+
+      - Reading Scores:
+
+          - Similar to math scores, students with parents holding an associate's degree or higher generally have higher mean reading scores compared to other groups.
+          - Students with parents having a master's degree or a bachelor's degree exhibit the highest mean reading scores, followed by those with an associate's degree.
+          - Conversely, students with parents having some high school education or only a high school diploma tend to have lower mean reading scores.
+
+     - Writing Scores:
+
+         - The pattern observed in writing scores is consistent with math and reading scores, where students with parents having higher education levels tend to have higher mean writing scores.
+        - Students with parents holding a master's or bachelor's degree have the highest mean writing scores, followed by those with an associate's degree.
+        - Mean writing scores are lower among students with parents having some high school education or only a high school diploma.
+
+    - Overall, the data suggests a positive association between parental education level and student academic achievement across all subjects. Students with parents who have attained higher education levels tend to perform better academically compared to those with parents having lower education levels. This underscores the importance of parental involvement and support in fostering academic success.
+
+4. **Student Lunch Status vs Grades:**
+- The analysis of exam scores based on lunch plans reveals significant disparities in academic performance between students receiving free/reduced lunch and those on standard lunch plans. Here are the key findings:
+
+  - Math Scores:
+        Students receiving free/reduced lunch have a mean math score of approximately 59.9, while students on standard lunch plans have a significantly higher mean math score of approximately 71.88.
+
+  - Reading Scores:
+        Students receiving free/reduced lunch have a mean reading score of approximately 65.64, whereas students on standard lunch plans have a substantially higher mean reading score of approximately 72.82.
+
+  - Writing Scores:
+        Students receiving free/reduced lunch have a mean writing score of approximately 64.24, whereas students on standard lunch plans have a higher mean writing score of approximately 71.67.
+
+- These findings underscore the need for targeted interventions to address academic disparities and ensure equitable access to educational resources for all students, regardless of their socioeconomic status.
+
+5. **Correlation Analysis:**
+   - Reading scores showed the strongest correlation with both math and writing scores, indicating a high degree of association between reading proficiency and overall academic performance.
+   - Math scores also demonstrated a strong positive correlation with writing scores, albeit slightly lower than the correlation between reading and writing scores.
+
+In conclusion, the analysis highlights the importance of test preparation in improving students' exam performance across various subjects. Additionally, it underscores the significance of reading proficiency as a predictor of overall academic success. These findings can inform educational interventions aimed at enhancing student outcomes and provide valuable insights for educators, policymakers, and stakeholders in the field of education. Further research is recommended to explore the underlying factors contributing to these performance disparities and to develop targeted strategies for supporting student achievement.
+
+
+
+
+
+
+### LINEAR AND LOGISTIC REGRESSION MODELS IN JUPITER NOTEBOOK AND HTML FILES
+
+
+
+
+
+
+
+
+
+
+
